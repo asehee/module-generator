@@ -1,0 +1,144 @@
+import { Router } from 'express';
+import { {{capitalizeFirstLetter moduleName}}Controller } from './{{moduleName}}.controller';
+
+/**
+ * @swagger
+ * tags:
+ *   name: {{capitalizeFirstLetter moduleName}}s
+ *   description: {{capitalizeFirstLetter moduleName}} management
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     {{capitalizeFirstLetter moduleName}}:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The auto-generated id
+ *         name:
+ *           type: string
+ *           description: The {{moduleName}} name
+ *         {{#if_eq moduleName "user"}}
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: Email address of the user
+ *         {{/if_eq}}
+ *         createdAt:
+ *           type: string
+ *           format: date
+ *           description: Creation date
+ *         updatedAt:
+ *           type: string
+ *           format: date
+ *           description: Last update date
+ */
+
+export const setupRoutes = (router: Router): void => {
+  const controller = new {{capitalizeFirstLetter moduleName}}Controller();
+
+  /**
+   * @swagger
+   * /api/{{moduleName}}s:
+   *   get:
+   *     summary: Get all {{moduleName}}s
+   *     tags: [{{capitalizeFirstLetter moduleName}}s]
+   *     responses:
+   *       200:
+   *         description: List of {{moduleName}}s
+   */
+  router.get('/', controller.getAll);
+
+  /**
+   * @swagger
+   * /api/{{moduleName}}s/{id}:
+   *   get:
+   *     summary: Get {{moduleName}} by ID
+   *     tags: [{{capitalizeFirstLetter moduleName}}s]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: {{capitalizeFirstLetter moduleName}} found
+   *       404:
+   *         description: {{capitalizeFirstLetter moduleName}} not found
+   */
+  router.get('/:id', controller.getById);
+
+  /**
+   * @swagger
+   * /api/{{moduleName}}s:
+   *   post:
+   *     summary: Create a new {{moduleName}}
+   *     tags: [{{capitalizeFirstLetter moduleName}}s]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/{{capitalizeFirstLetter moduleName}}'
+   *     responses:
+   *       201:
+   *         description: {{capitalizeFirstLetter moduleName}} created successfully
+   *       400:
+   *         description: Invalid input
+   */
+  router.post('/', controller.create);
+
+  /**
+   * @swagger
+   * /api/{{moduleName}}s/{id}:
+   *   put:
+   *     summary: Update {{moduleName}} by ID
+   *     tags: [{{capitalizeFirstLetter moduleName}}s]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/{{capitalizeFirstLetter moduleName}}'
+   *     responses:
+   *       200:
+   *         description: {{capitalizeFirstLetter moduleName}} updated successfully
+   *       404:
+   *         description: {{capitalizeFirstLetter moduleName}} not found
+   *       400:
+   *         description: Invalid input
+   */
+  router.put('/:id', controller.update);
+
+  /**
+   * @swagger
+   * /api/{{moduleName}}s/{id}:
+   *   delete:
+   *     summary: Delete {{moduleName}}
+   *     tags: [{{capitalizeFirstLetter moduleName}}s]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       204:
+   *         description: {{capitalizeFirstLetter moduleName}} deleted successfully
+   *       404:
+   *         description: {{capitalizeFirstLetter moduleName}} not found
+   */
+  router.delete('/:id', controller.delete);
+};

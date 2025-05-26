@@ -1,0 +1,21 @@
+import app from './app';
+import config from './config';
+import { logger } from './utils/logger';
+import { connectDB } from './config/database';
+
+const startServer = async (): Promise<void> => {
+  try {
+    // 데이터베이스 연결
+    await connectDB();
+    
+    // 서버 시작
+    app.listen(config.PORT, () => {
+      logger.info(`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

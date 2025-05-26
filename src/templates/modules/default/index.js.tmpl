@@ -1,0 +1,14 @@
+import express from 'express';
+import { {{capitalizeFirstLetter moduleName}}Controller } from './{{moduleName}}.controller.js';
+
+const router = express.Router();
+const controller = new {{capitalizeFirstLetter moduleName}}Controller();
+
+// 라우트 등록
+router.get('/', controller.getAll);
+router.get('/:id', controller.getById);
+router.post('/', controller.create);
+router.put('/:id', controller.update);
+router.delete('/:id', controller.delete);
+
+export default router;

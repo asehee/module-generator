@@ -1,0 +1,109 @@
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { UserModel } from '../user/user.model';
+import { validateLogin, validateRegister } from './auth.validation';
+import config from '../../config';
+
+export class AuthController {
+  register = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { error, value } = validateRegister(req.body);
+      
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      // 이메일 중복 확인
+      const existingUser = await UserModel.findOne({ where: { email: value.email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+
+      // 비밀번호 해싱
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(value.password, salt);
+
+      // 사용자 생성
+      const newUser = await UserModel.create({
+        name: value.name,
+        email: value.email,
+        password: hashedPassword
+      });
+
+      // 토큰 생성
+      const token = jwt.sign(
+        { userId: newUser.id },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      );
+
+      return res.status(201).json({
+        token,
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  login = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { error, value } = validateLogin(req.body);
+      
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      // 사용자 찾기
+      const user = await UserModel.findOne({ where: { email: value.email } });
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+
+      // 비밀번호 검증
+      const validPassword = await bcrypt.compare(value.password, user.password);
+      if (!validPassword) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+
+      // 토큰 생성
+      const token = jwt.sign(
+        { userId: user.id },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      );
+
+      return res.status(200).json({
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  getMe = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const user = await UserModel.findByPk(req.userId, {
+        attributes: { exclude: ['password'] }
+      });
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+}

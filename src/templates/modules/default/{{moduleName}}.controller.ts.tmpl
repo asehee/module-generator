@@ -1,0 +1,86 @@
+import { Request, Response } from 'express';
+import { {{capitalizeFirstLetter moduleName}}Service } from './{{moduleName}}.service';
+import { validate{{capitalizeFirstLetter moduleName}} } from './{{moduleName}}.validation';
+
+export class {{capitalizeFirstLetter moduleName}}Controller {
+  private {{moduleName}}Service: {{capitalizeFirstLetter moduleName}}Service;
+
+  constructor() {
+    this.{{moduleName}}Service = new {{capitalizeFirstLetter moduleName}}Service();
+  }
+
+  getAll = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const items = await this.{{moduleName}}Service.getAll();
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  getById = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const item = await this.{{moduleName}}Service.getById(id);
+      
+      if (!item) {
+        return res.status(404).json({ message: '{{capitalizeFirstLetter moduleName}} not found' });
+      }
+      
+      return res.status(200).json(item);
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  create = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { error, value } = validate{{capitalizeFirstLetter moduleName}}(req.body);
+      
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      const newItem = await this.{{moduleName}}Service.create(value);
+      return res.status(201).json(newItem);
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  update = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { error, value } = validate{{capitalizeFirstLetter moduleName}}(req.body);
+      
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      const updatedItem = await this.{{moduleName}}Service.update(id, value);
+      
+      if (!updatedItem) {
+        return res.status(404).json({ message: '{{capitalizeFirstLetter moduleName}} not found' });
+      }
+      
+      return res.status(200).json(updatedItem);
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  delete = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const deleted = await this.{{moduleName}}Service.delete(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: '{{capitalizeFirstLetter moduleName}} not found' });
+      }
+      
+      return res.status(204).send();
+    } catch (error) {
+      return res.status(500).json({ message: (error as Error).message });
+    }
+  }
+}

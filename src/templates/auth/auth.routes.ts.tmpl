@@ -1,0 +1,150 @@
+import express, { Router } from 'express';
+import { AuthController } from './auth.controller';
+import { authMiddleware } from '../../middlewares/auth.middleware';
+
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: 인증 관련 API
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RegisterRequest:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: 사용자 이름
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: 사용자 이메일
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: 사용자 비밀번호
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: 사용자 이메일
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: 사용자 비밀번호
+ *     AuthResponse:
+ *       type: object
+ *       properties:
+ *         token:
+ *           type: string
+ *           description: JWT 토큰
+ *         user:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *               description: 사용자 ID
+ *             name:
+ *               type: string
+ *               description: 사용자 이름
+ *             email:
+ *               type: string
+ *               description: 사용자 이메일
+ */
+
+export const setupRoutes = (router: Router): void => {
+  const controller = new AuthController();
+
+  /**
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: 새 사용자 등록
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/RegisterRequest'
+   *     responses:
+   *       201:
+   *         description: 사용자 등록 완료
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       400:
+   *         description: 유효하지 않은 입력 또는 이메일 중복
+   */
+  router.post('/register', controller.register);
+
+  /**
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: 사용자 로그인
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LoginRequest'
+   *     responses:
+   *       200:
+   *         description: 로그인 성공
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       400:
+   *         description: 유효하지 않은 이메일 또는 비밀번호
+   */
+  router.post('/login', controller.login);
+
+  /**
+   * @swagger
+   * /api/auth/me:
+   *   get:
+   *     summary: 현재 로그인한 사용자 정보 조회
+   *     tags: [Auth]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: 사용자 정보
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id:
+   *                   type: integer
+   *                   description: 사용자 ID
+   *                 name:
+   *                   type: string
+   *                   description: 사용자 이름
+   *                 email:
+   *                   type: string
+   *                   description: 사용자 이메일
+   *       401:
+   *         description: 인증되지 않음
+   *       404:
+   *         description: 사용자를 찾을 수 없음
+   */
+  router.get('/me', authMiddleware, controller.getMe);
+};

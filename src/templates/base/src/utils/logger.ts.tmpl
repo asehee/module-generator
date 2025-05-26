@@ -1,0 +1,28 @@
+import winston from 'winston';
+
+// 로그 포맷 정의
+const logFormat = winston.format.printf(({ timestamp, level, message }) => {
+  return `${timestamp} ${level}: ${message}`;
+});
+
+// 로거 설정
+export const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.colorize(),
+    logFormat
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' })
+  ]
+});
+
+// 개발 환경에서는 콘솔에도 출력
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}

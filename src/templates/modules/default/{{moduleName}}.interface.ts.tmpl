@@ -1,0 +1,18 @@
+export interface I{{capitalizeFirstLetter moduleName}} {
+  id: number;
+  name: string;
+  {{#if_eq moduleName "user"}}
+  email: string;
+  password: string;
+  {{/if_eq}}
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface I{{capitalizeFirstLetter moduleName}}Input {
+  name: string;
+  {{#if_eq moduleName "user"}}
+  email: string;
+  password: string;
+  {{/if_eq}}
+}

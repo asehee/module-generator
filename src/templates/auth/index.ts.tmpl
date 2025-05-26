@@ -1,0 +1,9 @@
+import express, { Router } from 'express';
+import { setupRoutes } from './auth.routes';
+
+const router: Router = express.Router();
+
+// 라우트 설정
+setupRoutes(router);
+
+export default router;

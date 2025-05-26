@@ -1,0 +1,31 @@
+import Joi from 'joi';
+
+interface IRegisterInput {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface ILoginInput {
+  email: string;
+  password: string;
+}
+
+export const validateRegister = (data: any): Joi.ValidationResult<IRegisterInput> => {
+  const schema = Joi.object<IRegisterInput>({
+    name: Joi.string().min(2).max(100).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required()
+  });
+
+  return schema.validate(data);
+};
+
+export const validateLogin = (data: any): Joi.ValidationResult<ILoginInput> => {
+  const schema = Joi.object<ILoginInput>({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  });
+
+  return schema.validate(data);
+};

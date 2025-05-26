@@ -1,0 +1,38 @@
+import { {{capitalizeFirstLetter moduleName}}Model } from './{{moduleName}}.model';
+import { I{{capitalizeFirstLetter moduleName}}, I{{capitalizeFirstLetter moduleName}}Input } from './{{moduleName}}.interface';
+
+export class {{capitalizeFirstLetter moduleName}}Service {
+  async getAll(): Promise<{{capitalizeFirstLetter moduleName}}Model[]> {
+    return await {{capitalizeFirstLetter moduleName}}Model.findAll();
+  }
+
+  async getById(id: number): Promise<{{capitalizeFirstLetter moduleName}}Model | null> {
+    return await {{capitalizeFirstLetter moduleName}}Model.findByPk(id);
+  }
+
+  async create(data: I{{capitalizeFirstLetter moduleName}}Input): Promise<{{capitalizeFirstLetter moduleName}}Model> {
+    return await {{capitalizeFirstLetter moduleName}}Model.create(data);
+  }
+
+  async update(id: number, data: Partial<I{{capitalizeFirstLetter moduleName}}Input>): Promise<{{capitalizeFirstLetter moduleName}}Model | null> {
+    const item = await this.getById(id);
+    
+    if (!item) {
+      return null;
+    }
+    
+    await item.update(data);
+    return item;
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const item = await this.getById(id);
+    
+    if (!item) {
+      return false;
+    }
+    
+    await item.destroy();
+    return true;
+  }
+}

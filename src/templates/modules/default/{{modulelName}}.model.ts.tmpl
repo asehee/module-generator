@@ -1,0 +1,40 @@
+import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import sequelize from '../../config/database';
+import { I{{capitalizeFirstLetter moduleName}} } from './{{moduleName}}.interface';
+
+// 생성 시 선택적 속성을 정의
+interface I{{capitalizeFirstLetter moduleName}}CreationAttributes extends Optional<I{{capitalizeFirstLetter moduleName}}, 'id' | 'createdAt' | 'updatedAt'> {}
+
+export class {{capitalizeFirstLetter moduleName}} extends Model<I{{capitalizeFirstLetter moduleName}}, I{{capitalizeFirstLetter moduleName}}CreationAttributes> implements I{{capitalizeFirstLetter moduleName}} {
+  declare id: number;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+}
+
+{{capitalizeFirstLetter moduleName}}.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+    }
+  },
+  {
+    sequelize,
+    tableName: '{{moduleName}}s',
+    timestamps: true
+  }
+);
+
+export const {{capitalizeFirstLetter moduleName}}Model = {{capitalizeFirstLetter moduleName}};
